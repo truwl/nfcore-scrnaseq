@@ -1,0 +1,384 @@
+parameter_meta:
+  scrnaseq.samplesheet:
+    description: Input FastQ files
+    group: input_output_options
+    help: 'Use this to specify the location of your input FastQ files. For example:
+
+
+      ```bash
+
+      --input ''path/to/data/sample_*_{1,2}.fastq''
+
+      ```
+
+
+      Please note the following requirements:
+
+
+      1. The path must be enclosed in quotes
+
+      2. The path must have at least one `*` wildcard character
+
+      3. When using the pipeline with paired end data, the path must use `{1,2}` notation
+      to specify read pairs.
+
+
+      If left unspecified, a default pattern is used: `data/*{1,2}.fastq.gz`'
+    hidden: false
+  scrnaseq.input_paths:
+    description: Input FastQ files path in array format
+    group: input_output_options
+    help: ''
+    hidden: true
+  scrnaseq.outdir:
+    description: The output directory where the results will be saved.
+    group: input_output_options
+    help: ''
+    hidden: false
+  scrnaseq.email:
+    description: Email address for completion summary.
+    group: input_output_options
+    help: Set this parameter to your e-mail address to get a summary e-mail with details
+      of the run sent to you when the workflow exits. If set in your user config file
+      (`~/.nextflow/config`) then you don't need to specify this on the command line
+      for every run.
+    hidden: false
+  scrnaseq.type:
+    description: 'Name of droplet technology (Currently supported: 10x, Drop-Seq,
+      inDrop, etc may be supported in the future.)'
+    group: mandatory_arguments
+    help: ''
+    hidden: false
+  scrnaseq.chemistry:
+    description: Version of 10x chemistry
+    group: mandatory_arguments
+    help: 'To specify which chemistry (and thus barcode whitelist) to use, use the
+      `--chemistry` flag. For example, to specify V3 chemistry (the default, as it
+      is compatible with V2), use `--chemistry V3`.
+
+
+      These files were copied out of 10x Genomics'' [cellranger](https://github.com/10XGenomics/cellranger)
+      `cellranger/lib/python/cellranger/barcodes`, in some cases gzipped for simplicity
+      across versions, and copied to `assets/whitelist`.
+
+
+      - V1: `737K-april-2014_rc.txt` --> gzipped --> `10x_V1_barcode_whitelist.txt.gz`
+
+      - V2: `737K-august-2016.txt` --> gzipped --> `10x_V2_barcode_whitelist.txt.gz`
+
+      - V3: `3M-february-2018.txt.gz` --> `10x_V3_barcode_whitelist.txt.gz`'
+    hidden: false
+  scrnaseq.barcode_whitelist:
+    description: If not using the 10X Genomics platform, a custom barcode whitelist
+      can be used with `--barcode_whitelist`.
+    group: mandatory_arguments
+    help: ''
+    hidden: false
+  scrnaseq.aligner:
+    description: 'Name of the tool to use for scRNA (pseudo-) alignment. Available
+      are: "alevin", "star", "kallisto". Default ''alevin''.'
+    group: mandatory_arguments
+    help: 'The workflow can handle three types of methods:
+
+
+      - Kallisto/Bustools
+
+      - Salmon Alevin + AlevinQC
+
+      - STARsolo
+
+
+      To choose which one to use, please specify either `alevin`, `star` or `kallisto`
+      as a parameter option for `--aligner`. By default, the pipeline runs the `alevin`
+      option. Note that specifying another aligner option also requires choosing appropriate
+      parameters (see below) for the selected option.'
+    hidden: false
+  scrnaseq.genome:
+    description: Name of iGenomes reference.
+    group: reference_genome_options
+    help: 'If using a reference genome configured in the pipeline using iGenomes,
+      use this parameter to give the ID for the reference. This is then used to build
+      the full paths for all required reference genome files e.g. `--genome GRCh38`.
+
+
+      See the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for
+      more details.'
+    hidden: false
+  scrnaseq.fasta:
+    description: Path to FASTA genome file.
+    group: reference_genome_options
+    help: If you have no genome reference available, the pipeline can build one using
+      a FASTA file. This requires additional time and resources, so it's better to
+      use a pre-build index if possible.
+    hidden: false
+  scrnaseq.igenomes_base:
+    description: Directory / URL base for iGenomes references.
+    group: reference_genome_options
+    help: ''
+    hidden: true
+  scrnaseq.igenomes_ignore:
+    description: Do not load the iGenomes reference config.
+    group: reference_genome_options
+    help: Do not load `igenomes.config` when running the pipeline. You may choose
+      this option if you observe clashes between custom parameters and those supplied
+      in `igenomes.config`.
+    hidden: true
+  scrnaseq.transcript_fasta:
+    description: A cDNA fastq file
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  scrnaseq.gtf:
+    description: Reference GTF annotation file
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  scrnaseq.save_reference:
+    description: Specify this parameter to save the indices created (STAR, Kallisto,
+      Salmon) to the results.
+    group: reference_genome_options
+    help: ''
+    hidden: false
+  scrnaseq.salmon_index:
+    description: This can be used to specify a precomputed Salmon index in the pipeline,
+      in order to skip the generation of required indices by Salmon itself.
+    group: alevin_options
+    help: ''
+    hidden: false
+  scrnaseq.txp2gene:
+    description: Path to transcript to gene mapping file. This allows the specification
+      of a transcript to gene mapping file for Salmon Alevin and AlevinQC.
+    group: alevin_options
+    help: '> This is not the same as the `kallisto_gene_map` parameter down below
+      and is only used by the Salmon Alevin workflow.'
+    hidden: false
+  scrnaseq.star_index:
+    description: Specify a path to the precomputed STAR index.
+    group: starsolo_options
+    help: '> NB: This has to be computed with STAR Version 2.7 or later, as STARsolo
+      was only first supported by STAR Version 2.7.'
+    hidden: false
+  scrnaseq.kallisto_gene_map:
+    description: Specify a Kallisto gene mapping file here. If you don't, this will
+      be automatically created in the Kallisto workflow when specifying a valid `--gtf`
+      file.
+    group: kallisto_bus_options
+    help: ''
+    hidden: false
+  scrnaseq.bustools_correct:
+    description: If set to false, skip the correct steps after mapping with Kallisto.
+    group: kallisto_bus_options
+    help: ''
+    hidden: false
+  scrnaseq.skip_bustools:
+    description: Skip BUStools entirely in workflow
+    group: kallisto_bus_options
+    help: ''
+    hidden: false
+  scrnaseq.kallisto_index:
+    description: Specify a path to the precomputed Kallisto index.
+    group: kallisto_bus_options
+    help: ''
+    hidden: false
+  scrnaseq.help:
+    description: Display help text.
+    group: generic_options
+    help: ''
+    hidden: true
+  scrnaseq.publish_dir_mode:
+    description: Method used to save pipeline results to output directory.
+    group: generic_options
+    help: The Nextflow `publishDir` option specifies which intermediate files should
+      be saved to the output directory. This option tells the pipeline what method
+      should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir)
+      for details.
+    hidden: true
+  scrnaseq.validate_params:
+    description: Boolean whether to validate parameters against the schema at runtime
+    group: generic_options
+    help: ''
+    hidden: true
+  scrnaseq.email_on_fail:
+    description: Email address for completion summary, only when pipeline fails.
+    group: generic_options
+    help: This works exactly as with `--email`, except emails are only sent if the
+      workflow is not successful.
+    hidden: true
+  scrnaseq.plaintext_email:
+    description: Send plain-text email instead of HTML.
+    group: generic_options
+    help: Set to receive plain-text e-mails instead of HTML formatted.
+    hidden: true
+  scrnaseq.max_multiqc_email_size:
+    description: File size limit when attaching MultiQC reports to summary emails.
+    group: generic_options
+    help: If file generated by pipeline exceeds the threshold, it will not be attached.
+    hidden: true
+  scrnaseq.monochrome_logs:
+    description: Do not use coloured log outputs.
+    group: generic_options
+    help: Set to disable colourful command line output and live life in monochrome.
+    hidden: true
+  scrnaseq.multiqc_config:
+    description: Custom config file to supply to MultiQC.
+    group: generic_options
+    help: ''
+    hidden: true
+  scrnaseq.tracedir:
+    description: Directory to keep pipeline Nextflow logs and reports.
+    group: generic_options
+    help: ''
+    hidden: true
+  scrnaseq.show_hidden_params:
+    description: Show all params when using `--help`
+    group: generic_options
+    help: By default, parameters set as _hidden_ in the schema are not shown on the
+      command line when a user runs with `--help`. Specifying this option will tell
+      the pipeline to show all parameters.
+    hidden: true
+  scrnaseq.max_cpus:
+    description: Maximum number of CPUs that can be requested    for any single job.
+    group: max_job_request_options
+    help: Use to set an upper-limit for the CPU requirement for each process. Should
+      be an integer e.g. `--max_cpus 1`
+    hidden: true
+  scrnaseq.max_memory:
+    description: Maximum amount of memory that can be requested for any single job.
+    group: max_job_request_options
+    help: Use to set an upper-limit for the memory requirement for each process. Should
+      be a string in the format integer-unit e.g. `--max_memory '8.GB'`
+    hidden: true
+  scrnaseq.max_time:
+    description: Maximum amount of time that can be requested for any single job.
+    group: max_job_request_options
+    help: Use to set an upper-limit for the time requirement for each process. Should
+      be a string in the format integer-unit e.g. `--max_time '2.h'`
+    hidden: true
+  scrnaseq.custom_config_version:
+    description: Git commit id for Institutional configs.
+    group: institutional_config_options
+    help: 'Provide git commit id for custom Institutional configs hosted at `nf-core/configs`.
+      This was implemented for reproducibility purposes. Default: `master`.
+
+
+      ```bash
+
+      ## Download and use config file with following git commit id
+
+      --custom_config_version d52db660777c4bf36546ddb188ec530c3ada1b96
+
+      ```'
+    hidden: true
+  scrnaseq.custom_config_base:
+    description: Base directory for Institutional configs.
+    group: institutional_config_options
+    help: 'If you''re running offline, nextflow will not be able to fetch the institutional
+      config files from the internet. If you don''t need them, then this is not a
+      problem. If you do need them, you should download the files from the repo and
+      tell nextflow where to find them with the `custom_config_base` option. For example:
+
+
+      ```bash
+
+      ## Download and unzip the config files
+
+      cd /path/to/my/configs
+
+      wget https://github.com/nf-core/configs/archive/master.zip
+
+      unzip master.zip
+
+
+      ## Run the pipeline
+
+      cd /path/to/my/data
+
+      nextflow run /path/to/pipeline/ --custom_config_base /path/to/my/configs/configs-master/
+
+      ```
+
+
+      > Note that the nf-core/tools helper package has a `download` command to download
+      all required pipeline files + singularity containers + institutional configs
+      in one go for you, to make this process easier.'
+    hidden: true
+  scrnaseq.hostnames:
+    description: Institutional configs hostname.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+  scrnaseq.config_profile_name:
+    description: Institutional config name.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+  scrnaseq.config_profile_description:
+    description: Institutional config description.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+  scrnaseq.config_profile_contact:
+    description: Institutional config contact information.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+  scrnaseq.config_profile_url:
+    description: Institutional config URL link.
+    group: institutional_config_options
+    help: ''
+    hidden: true
+parameter_groups:
+  input_output_options:
+    description: Define where the pipeline should find input data and save output
+      data.
+    help: null
+    title: Input/output options
+  mandatory_arguments:
+    description: ''
+    help: null
+    title: Mandatory arguments
+  reference_genome_options:
+    description: Options for the reference genome indices used to align reads.
+    help: null
+    title: Reference genome options
+  alevin_options:
+    description: ''
+    help: null
+    title: Alevin Options
+  starsolo_options:
+    description: ''
+    help: null
+    title: STARSolo Options
+  kallisto_bus_options:
+    description: Params related to Kallisto/BUS tool
+    help: null
+    title: Kallisto/BUS Options
+  generic_options:
+    description: Less common options for the pipeline, typically set in a config file.
+    help: 'These options are common to all nf-core pipelines and allow you to customise
+      some of the core preferences for how the pipeline runs.
+
+
+      Typically these options would be set in a Nextflow config file loaded for all
+      pipeline runs, such as `~/.nextflow/config`.'
+    title: Generic options
+  max_job_request_options:
+    description: Set the top limit for requested resources for any single job.
+    help: 'If you are running on a smaller system, a pipeline step requesting more
+      resources than are available may cause the Nextflow to stop the run with an
+      error. These options allow you to cap the maximum resources requested by any
+      single job so that the pipeline will run on your system.
+
+
+      Note that you can not _increase_ the resources requested by any job using these
+      options. For that you will need your own configuration file. See [the nf-core
+      website](https://nf-co.re/usage/configuration) for details.'
+    title: Max job request options
+  institutional_config_options:
+    description: Parameters used to describe centralised config profiles. These should
+      not be edited.
+    help: The centralised nf-core configuration profiles use a handful of pipeline
+      parameters to describe themselves. This information is then printed to the Nextflow
+      log when you run a pipeline. You should not need to change these values when
+      you run a pipeline.
+    title: Institutional config options
