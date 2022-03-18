@@ -1,5 +1,5 @@
 {
-    "scrnaseq.samplesheet": "File",
+    "scrnaseq.reads": "String?",
     "scrnaseq.input_paths": "String?",
     "scrnaseq.outdir": "String (default = \"./results\")",
     "scrnaseq.email": "String?",

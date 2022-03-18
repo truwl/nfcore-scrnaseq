@@ -1,5 +1,5 @@
 parameter_meta:
-  scrnaseq.samplesheet:
+  scrnaseq.reads:
     description: Input FastQ files
     group: input_output_options
     help: 'Use this to specify the location of your input FastQ files. For example:
